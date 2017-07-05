@@ -1,0 +1,3 @@
+Arduino implementation of SNAP protocol ( http://www.hth.com/snap/ ).
+
+Based on alx work ( https://github.com/alx/reprap-arduino-firmware/tree/master/library/SNAP )
