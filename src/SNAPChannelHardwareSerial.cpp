@@ -1,4 +1,5 @@
 #include "SNAPChannelHardwareSerial.h"
+#include "DebugUtils.h"
 
 SNAPChannelHardwareSerial::SNAPChannelHardwareSerial(HardwareSerial * serial) {
   this->serial = serial;
@@ -13,6 +14,7 @@ int SNAPChannelHardwareSerial::read() {
 }
 
 size_t SNAPChannelHardwareSerial::printByte(byte c) {
+  // DEBUG_PRINT(String(c, BIN));
   return this->serial->write(c);
 }
 

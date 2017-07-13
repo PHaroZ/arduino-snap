@@ -55,44 +55,47 @@ enum SNAP_states {
   SNAP_haveHDB1,
   SNAP_haveDAB,
   SNAP_readingData,
-  SNAP_dataComplete
+  SNAP_dataComplete,
+  SNAP_waitForAck
 };
 
 template <byte BUFFER_SIZE = 16>
 class SNAP {
 public:
-  SNAP(SNAPChannel * channel);
+  SNAP(SNAPChannel * channel, byte address);
 
   bool receivePacket();
-  void receiveByte(byte b);
+  bool waitForAck();
   bool packetReady();
 
   byte getDestination();
   byte getByte(byte index);
   int getInt(byte index); // get 16 bits
 
-  void sendStart(byte to, byte from);
+  void sendStart(byte to, unsigned long ackWaitTime);
   void sendDataByte(byte c);
   void sendDataInt(int data);
   void sendDataLong(long data);
   void sendMessage();
 
-  void debug();
-
   void releaseLock();
 
 private:
+  void receiveByte(byte b);
   void receiveError();
   void transmit(byte c);
+  void transmitMessage();
+  void transmitStart();
   void transmitEnd();
 
   // our crc functions.
   byte computeCRC(byte b, byte crc);
-  byte computeRxCRC(byte c);
+  byte computeRxCRC(byte c, bool forceDestForMe = false);
   byte computeTxCRC(byte c);
 
   // our communication Channel (typically a proxy to HardwareSerial or SoftwareSerial)
   SNAPChannel * channel;
+  byte address;
 
   // these are variables for the packet we're currently receiving.
   byte rxState;               // Current SNAP packet state
@@ -101,18 +104,24 @@ private:
   byte rxHDB2;                // 2nd header byte
   byte rxLength;              // Length of packet being received
   byte rxDestAddress;         // Destination of packet being received (us)
+  bool rxDestForMe;           // Is current receive packet for me ? (broadcast or juste for me)
   byte rxSourceAddress;       // Source of packet being received
   byte rxCRC;                 // Incrementally calculated CRC value
   byte rxBufferIndex;         // Current receive buffer index
   byte rxBuffer[BUFFER_SIZE]; // Receive buffer
 
   // these are the variables for the packet we're currently transmitting.
-  byte txHDB2;                // 2nd header byte (1st header byte doesnt change!)
-  byte txLength;              // transmit packet length
-  byte txDestAddress;         // transmit packet destination
-  byte txSourceAddress;       // transmit packet source (us)
-  byte txCRC;                 // incrementally calculated CRC value
-  byte txBuffer[BUFFER_SIZE]; // Last packet data, for auto resending on a NAK
+  byte txHDB1;                           // 1st header byte
+  byte txHDB2;                           // 2nd header byte
+  byte txLength;                         // transmit packet length
+  byte txDestAddress;                    // transmit packet destination
+  byte txSourceAddress;                  // transmit packet source (us)
+  byte txCRC;                            // incrementally calculated CRC value
+  byte txBuffer[BUFFER_SIZE];            // Last packet data, for auto resending on a NAK
+  unsigned long txMillis;                // number of ms since last transmission
+  unsigned long txAckWaitTime;           // number of ms we are allow to wait for an ACK (0 means no ACK)
+  unsigned short txRetryCount;           // number of retries when no ACK received
+  const unsigned short txMaxNoRetry = 2; // maximum number of retries when no ACK received
 };
 
 #endif // ifndef SNAP_h
