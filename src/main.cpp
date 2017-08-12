@@ -1,4 +1,4 @@
-#define DEBUG
+// #define DEBUG
 
 #include "Arduino.h"
 #include "SNAP.cpp" // TODO we should include .h not .cpp

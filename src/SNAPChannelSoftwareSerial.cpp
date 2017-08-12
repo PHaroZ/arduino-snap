@@ -1,4 +1,3 @@
-#define DEBUG
 #include "SNAPChannelSoftwareSerial.h"
 #include "DebugUtils.h"
 
