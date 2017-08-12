@@ -1,25 +1,25 @@
+#define DEBUG
+
 #include "Arduino.h"
 #include "SNAP.cpp" // TODO we should include .h not .cpp
 #include "SNAPChannel.h"
 #include "SNAPChannelHardwareSerial.h"
+#include "SNAPChannelSoftwareSerial.h"
 
 #include "DebugUtils.h"
 
 const byte snapAddressMaster = 1;
 const byte snapAddressSlave  = 2;
 
-SNAPChannelHardwareSerial snapChannelMaster = SNAPChannelHardwareSerial(&Serial1);
-SNAP<16> snapMaster = SNAP<16>(&snapChannelMaster, snapAddressMaster, 13u);
+SNAPChannelHardwareSerial snapChannelMaster = SNAPChannelHardwareSerial(&Serial3, 115200);
+SNAP<16> snapMaster = SNAP<16>(&snapChannelMaster, snapAddressMaster, 24);
 
-SNAPChannelHardwareSerial snapChannelSlave = SNAPChannelHardwareSerial(&Serial2);
-SNAP<16> snapSlave = SNAP<16>(&snapChannelSlave, snapAddressSlave, -1);
+SNAPChannelSoftwareSerial snapChannelSlave = SNAPChannelSoftwareSerial(10, 11, 115200);
+// SNAPChannelHardwareSerial snapChannelSlave = SNAPChannelHardwareSerial(&Serial2, 57600);
+SNAP<16> snapSlave = SNAP<16>(&snapChannelSlave, snapAddressSlave, 26);
 
 void setup() {
-  Serial.begin(57600); // debug
-
-  Serial1.begin(57600);
-
-  Serial2.begin(57600);
+  Serial.begin(250000); // debug
 }
 
 void loop() {
@@ -51,7 +51,8 @@ void loop() {
   }
 
   if (snapSlave.receivePacket()) {
-    Serial.print("slave getBytes :");
+    Serial.print(millis());
+    Serial.print(" slave getBytes :");
     for (byte i = 0; i < 16; i++) {
       Serial.print(' ');
       Serial.print(snapSlave.getByte(i), BIN);

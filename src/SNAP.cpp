@@ -8,6 +8,7 @@ template <byte BUFFER_SIZE> SNAP<BUFFER_SIZE>::SNAP(SNAPChannel * channel, byte 
   this->pinTxMode = pinTxMode;
   if (this->pinTxMode > -1) {
     pinMode(this->pinTxMode, OUTPUT);
+    digitalWrite(this->pinTxMode, LOW);
   }
 
   // init our rx valuesSNAPChannel
@@ -42,7 +43,7 @@ template <byte BUFFER_SIZE> SNAP<BUFFER_SIZE>::SNAP(SNAPChannel * channel, byte 
 
 template <byte BUFFER_SIZE> bool SNAP<BUFFER_SIZE>::waitForAck() {
   if (this->txAckWaitTime > 0) {
-    DEBUG_PRINT("wait for ack");
+    // DEBUG_PRINT("wait for ack");
     // we are waiting for an ACK
     if (this->receivePacket()) {
       // ACK just received ?
@@ -434,6 +435,7 @@ template <byte BUFFER_SIZE> void SNAP<BUFFER_SIZE>::releaseLock() {
 }
 
 template <byte BUFFER_SIZE> void SNAP<BUFFER_SIZE>::transmitMessage() {
+  // DEBUG_PRINT("#" + String(this->address) + " txHDB1= " + String(this->txHDB1, BIN));
   this->transmitStart();
 
   // here is our header.

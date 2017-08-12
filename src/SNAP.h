@@ -1,13 +1,13 @@
 /*
- * SNAP.h - RepRap SNAP Communications library for Arduino
+ * SNAP.h - SNAP Communications library for Arduino
  *
- * This library implements easy SNAP based communication with the RepRap host software
- * with easy commands to enable receiving, sending, and passing along SNAP messages.
+ * This library implements easy SNAP based communication
  *
  * History:
  * (0.1) Ported from PIC library by Zach Smith.
  * (0.2) Updated and fixed by the guys from Metalab in Austra (kintel and wizard23)
- * (0.3) Rewrote and refactored all code.  Added separate buffers and variables for Rx/Tx by Zach Smith.
+ * (0.3) Rewrote and refactored all code. Added separate buffers and variables for Rx/Tx by Zach Smith.
+ * (1.0) Rewrote and refactored all code for better support of specifications (PHaroZ)
  *
  * License: GPL v2.0
  */

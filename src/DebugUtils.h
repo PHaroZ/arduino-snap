@@ -1,8 +1,6 @@
 #ifndef DEBUGUTILS_H
 #define DEBUGUTILS_H
 
-#define DEBUG
-
 #ifdef DEBUG
 # include <Arduino.h>
 # define DEBUG_PRINT(str)    \
