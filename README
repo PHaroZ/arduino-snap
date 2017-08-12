@@ -2,4 +2,4 @@ Arduino implementation of SNAP protocol ( http://www.hth.com/snap/ ).
 
 Based on alx work ( https://github.com/alx/reprap-arduino-firmware/tree/master/library/SNAP )
 
-main.cpp correspond to a sketch example
+see sample.cpp for a sketch example (rename it as "main.cpp" to launch it)

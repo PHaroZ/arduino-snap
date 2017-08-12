@@ -14,7 +14,7 @@
   Serial.print(' ');      \
   Serial.println(str);
 #else // ifdef DEBUG
-# define DEBUG_PRINT(str) Serial.println(str);
+# define DEBUG_PRINT(str)
 #endif // ifdef DEBUG
 
 #endif // ifndef DEBUGUTILS_H
