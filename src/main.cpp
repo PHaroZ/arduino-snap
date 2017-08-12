@@ -9,10 +9,10 @@ const byte snapAddressMaster = 1;
 const byte snapAddressSlave  = 2;
 
 SNAPChannelHardwareSerial snapChannelMaster = SNAPChannelHardwareSerial(&Serial1);
-SNAP<16> snapMaster = SNAP<16>(&snapChannelMaster, snapAddressMaster);
+SNAP<16> snapMaster = SNAP<16>(&snapChannelMaster, snapAddressMaster, 13u);
 
 SNAPChannelHardwareSerial snapChannelSlave = SNAPChannelHardwareSerial(&Serial2);
-SNAP<16> snapSlave = SNAP<16>(&snapChannelSlave, snapAddressSlave);
+SNAP<16> snapSlave = SNAP<16>(&snapChannelSlave, snapAddressSlave, -1);
 
 void setup() {
   Serial.begin(57600); // debug
@@ -24,11 +24,14 @@ void setup() {
 
 void loop() {
   if (Serial.available() > 0) {
+    long startAt = millis();
     snapMaster.sendStart(snapAddressSlave, 100);
     byte toSend;
-    while (Serial.available() > 0) {
-      toSend = Serial.read();
-      snapMaster.sendDataByte(toSend);
+    while (Serial.available() > 0 || (millis() - startAt) < 1000) {
+      if (Serial.available() > 0) {
+        toSend = Serial.read();
+        snapMaster.sendDataByte(toSend);
+      }
     }
     snapMaster.sendMessage();
   }

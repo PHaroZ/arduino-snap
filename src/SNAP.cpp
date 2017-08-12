@@ -2,9 +2,13 @@
 #include "SNAP.h"
 #include "DebugUtils.h"
 
-template <byte BUFFER_SIZE> SNAP<BUFFER_SIZE>::SNAP(SNAPChannel * channel, byte address) {
-  this->channel = channel;
-  this->address = address;
+template <byte BUFFER_SIZE> SNAP<BUFFER_SIZE>::SNAP(SNAPChannel * channel, byte address, int pinTxMode) {
+  this->channel   = channel;
+  this->address   = address;
+  this->pinTxMode = pinTxMode;
+  if (this->pinTxMode > -1) {
+    pinMode(this->pinTxMode, OUTPUT);
+  }
 
   // init our rx valuesSNAPChannel
   this->rxState         = SNAP_idle;
@@ -38,7 +42,7 @@ template <byte BUFFER_SIZE> SNAP<BUFFER_SIZE>::SNAP(SNAPChannel * channel, byte 
 
 template <byte BUFFER_SIZE> bool SNAP<BUFFER_SIZE>::waitForAck() {
   if (this->txAckWaitTime > 0) {
-    DEBUG_PRINT("waint ack");
+    DEBUG_PRINT("wait for ack");
     // we are waiting for an ACK
     if (this->receivePacket()) {
       // ACK just received ?
@@ -456,10 +460,17 @@ template <byte BUFFER_SIZE> void SNAP<BUFFER_SIZE>::transmit(byte c) {
   this->channel->printByte(c);
 }
 
-template <byte BUFFER_SIZE> void SNAP<BUFFER_SIZE>::transmitStart() { }
+template <byte BUFFER_SIZE> void SNAP<BUFFER_SIZE>::transmitStart() {
+  if (this->pinTxMode > -1) {
+    digitalWrite(this->pinTxMode, HIGH);
+  }
+}
 
 template <byte BUFFER_SIZE> void SNAP<BUFFER_SIZE>::transmitEnd() {
   this->channel->printFlush();
+  if (this->pinTxMode > -1) {
+    digitalWrite(this->pinTxMode, LOW);
+  }
 }
 
 /*!
