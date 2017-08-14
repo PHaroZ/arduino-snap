@@ -14,8 +14,8 @@ const byte snapAddressSlave  = 2;
 SNAPChannelHardwareSerial snapChannelMaster = SNAPChannelHardwareSerial(&Serial3, 115200);
 SNAP<16> snapMaster = SNAP<16>(&snapChannelMaster, snapAddressMaster, 24);
 
-SNAPChannelSoftwareSerial snapChannelSlave = SNAPChannelSoftwareSerial(10, 11, 115200);
-// SNAPChannelHardwareSerial snapChannelSlave = SNAPChannelHardwareSerial(&Serial2, 57600);
+// SNAPChannelSoftwareSerial snapChannelSlave = SNAPChannelSoftwareSerial(10, 11, 115200);
+SNAPChannelHardwareSerial snapChannelSlave = SNAPChannelHardwareSerial(&Serial2, 57600);
 SNAP<16> snapSlave = SNAP<16>(&snapChannelSlave, snapAddressSlave, 26);
 
 void setup() {

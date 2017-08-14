@@ -98,7 +98,7 @@ template <byte BUFFER_SIZE> bool SNAP<BUFFER_SIZE>::receivePacket() {
 
   while (this->channel->available() > 0 && !this->packetReady()) {
     cmd = this->channel->read();
-    // DEBUG_PRINT("#" + String(this->address) + " received something " + String(cmd, BIN));
+    DEBUG_PRINT("#" + String(this->address) + " received something " + String(cmd, BIN));
     this->receiveByte(cmd);
   }
 
@@ -358,7 +358,7 @@ template <byte BUFFER_SIZE> void SNAP<BUFFER_SIZE>::sendMessage() {
   byte txNDB;
 
   { // adjust size to SNAP spec
-    byte realLength;
+    unsigned int realLength;
     if (this->txLength <= 8) {
       realLength = this->txLength;
       txNDB      = txLength;
@@ -384,7 +384,7 @@ template <byte BUFFER_SIZE> void SNAP<BUFFER_SIZE>::sendMessage() {
       realLength = this->txLength;
       txNDB      = B00001111;
     }
-    for (byte i = this->txLength; i < realLength; i++) {
+    for (unsigned int i = this->txLength; i < realLength; i++) {
       this->sendDataByte(B00000000);
     }
   }
