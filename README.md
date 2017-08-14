@@ -58,4 +58,4 @@ if (snapSlave.receivePacket()) {
 ```
 
 ## Complete example
-For a complete example see sample.cpp (rename it as "main.cpp" to launch it) : a single arduino MEGA wich communicate with itself other diffrent Serial implentation.
+For a complete example see sexamples/sample.cpp : a single arduino MEGA wich communicate with itself other diffrent Serial implentation.
