@@ -2,6 +2,10 @@
 #include "SNAP.h"
 #include "DebugUtils.h"
 
+// see https : www.codeproject.com/Articles/48575/How-to-define-a-template-class-in-a-h-file-and-imp
+// and https://isocpp.org/wiki/faq/templates#separate-template-fn-defn-from-decl-export-keyword
+template class SNAP<16>;
+
 template <byte BUFFER_SIZE> SNAP<BUFFER_SIZE>::SNAP(SNAPChannel * channel, byte address, int pinTxMode) {
   this->channel   = channel;
   this->address   = address;
