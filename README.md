@@ -7,7 +7,7 @@ Based on alx work ( https://github.com/alx/reprap-arduino-firmware/tree/master/l
 This implemention of SNAP protocol is compatible for :
  * master or slave node
  * HardwareSerial and SoftwareSerial
- * hardware that need a pin for controlling txMode (such as MAX485 chip). In example abose set txPin to -1 if you don't need ths feature.
+ * hardware that need a pin for controlling txMode (such as MAX485 chip). In example above set txPin to -1 if you don't need this feature.
 
 ## HardwareSerial example
 ```cpp
@@ -58,4 +58,4 @@ if (snapSlave.receivePacket()) {
 ```
 
 ## Complete example
-For a complete example see sexamples/sample.cpp : a single arduino MEGA wich communicate with itself other diffrent Serial implentation.
+For a complete example see sexamples/sample.cpp : a single arduino MEGA wich communicate with itself over its differents Serial.
