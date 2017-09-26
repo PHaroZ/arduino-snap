@@ -531,6 +531,10 @@ template <byte BUFFER_SIZE> byte SNAP<BUFFER_SIZE>::getDestination() {
   return this->rxDestAddress;
 }
 
+template <byte BUFFER_SIZE> byte SNAP<BUFFER_SIZE>::getSource() {
+  return this->rxSourceAddress;
+}
+
 template <byte BUFFER_SIZE> byte SNAP<BUFFER_SIZE>::getByte(byte index) {
   return this->rxBuffer[index];
 }

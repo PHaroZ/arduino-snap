@@ -72,6 +72,7 @@ public:
   bool packetReady();
 
   byte getDestination();
+  byte getSource();
   byte getByte(byte index);
   int getInt(byte index); // get 16 bits
 
