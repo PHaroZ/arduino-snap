@@ -36,7 +36,7 @@ void loop() {
     snapMaster.sendMessage();
   }
 
-  if (snapMaster.waitForAck()) {
+  if (snapMaster.isWaitingForAck()) {
     // do nothing ?
   } else {
     if (snapMaster.receivePacket()) {

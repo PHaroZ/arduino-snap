@@ -24,7 +24,7 @@
 #define BROADCAST_ADDRESS 0
 
 // our sync packet value.
-#define SNAP_SYNC 0x54
+#define SNAP_SYNC 0x54 // B01010100
 
 // The defines below are for error checking and such.
 // Bit0 is for serialError-flag for checking if an serial error has occured,
@@ -66,6 +66,7 @@ public:
 
   bool receivePacket();
   bool waitForAck();
+  bool isWaitingForAck();
   bool packetReady();
 
   byte getDestination();

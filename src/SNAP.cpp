@@ -29,7 +29,7 @@ template <byte BUFFER_SIZE> SNAP<BUFFER_SIZE>::SNAP(SNAPChannel * channel, byte 
 
   // clear our rx buffer.
   for (byte i = 0; i < BUFFER_SIZE; i++)
-    this->rxBuffer[i] = 0;
+    this->rxBuffer[i] = 0X00;
 
   // init our tx values
   this->txDestAddress   = 0;
@@ -46,6 +46,13 @@ template <byte BUFFER_SIZE> SNAP<BUFFER_SIZE>::SNAP(SNAPChannel * channel, byte 
 }
 
 template <byte BUFFER_SIZE> bool SNAP<BUFFER_SIZE>::waitForAck() {
+  bool hasWait = this->isWaitingForAck();
+
+  while (this->isWaitingForAck()) ;
+  return hasWait;
+}
+
+template <byte BUFFER_SIZE> bool SNAP<BUFFER_SIZE>::isWaitingForAck() {
   if (this->txAckWaitTime > 0) {
     // DEBUG_PRINT("wait for ack");
     // we are waiting for an ACK
@@ -60,6 +67,7 @@ template <byte BUFFER_SIZE> bool SNAP<BUFFER_SIZE>::waitForAck() {
       } else if (this->rxHDB2 & B00000011) {
         DEBUG_PRINT("#" + String(this->address) + " received NACK in " + String(
             millis() - this->txMillis) + "ms, resending");
+        this->releaseLock();
         // it's a NACK response, so re-transmit the message
         transmitMessage();
         return true;
@@ -95,7 +103,7 @@ template <byte BUFFER_SIZE> bool SNAP<BUFFER_SIZE>::waitForAck() {
     // NO ACK waiting
     return false;
   }
-} // waitForAck
+} // isWaitingForAck
 
 template <byte BUFFER_SIZE> bool SNAP<BUFFER_SIZE>::receivePacket() {
   byte cmd;
@@ -258,7 +266,7 @@ template <byte BUFFER_SIZE> void SNAP<BUFFER_SIZE>::receiveByte(byte c) {
           // Send ACK or NAK back to source
           // TODO Send nack if (hdb2 & B00000011)
           if (this->rxFlags & ackRequestedBit) {
-            // DEBUG_PRINT("#" + String(this->address) + " send ack {{");
+            DEBUG_PRINT("#" + String(this->address) + " send ack {{");
             this->transmitStart();
             this->transmit(SNAP_SYNC);
             this->txCRC = 0;
@@ -268,7 +276,7 @@ template <byte BUFFER_SIZE> void SNAP<BUFFER_SIZE>::receiveByte(byte c) {
             this->transmit(this->computeTxCRC(this->rxDestAddress));   // From us
             this->transmit(this->txCRC);                               // CRC
             this->transmitEnd();                                       // transmission end
-            // DEBUG_PRINT("#" + String(this->address) + " }} send ack");
+            DEBUG_PRINT("#" + String(this->address) + " }} send ack");
             this->rxFlags &= ~ackRequestedBit; // clear
           }
         }
@@ -285,20 +293,7 @@ template <byte BUFFER_SIZE> void SNAP<BUFFER_SIZE>::receiveByte(byte c) {
 } // receiveByte
 
 template <byte BUFFER_SIZE> void SNAP<BUFFER_SIZE>::receiveError() {
-  // init our rx values
-  this->rxState         = SNAP_idle;
-  this->rxFlags         = 0;
-  this->rxHDB1          = 0;
-  this->rxHDB2          = 0;
-  this->rxLength        = 0;
-  this->rxDestAddress   = 0;
-  this->rxSourceAddress = 0;
-  this->rxCRC         = 0;
-  this->rxBufferIndex = 0;
-
-  // clear our rx buffer.
-  for (byte i = 0; i < BUFFER_SIZE; i++)
-    this->rxBuffer[i] = 0;
+  this->releaseLock();
 }
 
 template <byte BUFFER_SIZE> void SNAP<BUFFER_SIZE>::sendStart(byte to, unsigned long ackWaitTime) {
