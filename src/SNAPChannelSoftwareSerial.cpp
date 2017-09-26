@@ -1,8 +1,11 @@
 #include "SNAPChannelSoftwareSerial.h"
 #include "DebugUtils.h"
 
-SNAPChannelSoftwareSerial::SNAPChannelSoftwareSerial(byte rxPin, byte txPin, long speed) {
+SNAPChannelSoftwareSerial::SNAPChannelSoftwareSerial(byte rxPin, byte txPin) {
   this->serial = new SoftwareSerial(rxPin, txPin);
+}
+
+void SNAPChannelSoftwareSerial::begin(uint32_t speed) {
   this->serial->begin(speed);
 }
 

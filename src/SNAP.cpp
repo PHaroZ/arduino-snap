@@ -6,13 +6,18 @@
 // and https://isocpp.org/wiki/faq/templates#separate-template-fn-defn-from-decl-export-keyword
 template class SNAP<16>;
 
-template <byte BUFFER_SIZE> SNAP<BUFFER_SIZE>::SNAP(SNAPChannel * channel, byte address, int pinTxMode) {
+template <byte BUFFER_SIZE> SNAP<BUFFER_SIZE>::SNAP(SNAPChannel * channel, byte address, uint8_t pinTxMode) {
   this->channel   = channel;
   this->address   = address;
   this->pinTxMode = pinTxMode;
-  if (this->pinTxMode > -1) {
-    pinMode(this->pinTxMode, OUTPUT);
+}
+
+template <byte BUFFER_SIZE> void SNAP<BUFFER_SIZE>::begin(uint32_t speed) {
+  this->channel->begin(speed);
+
+  if (this->pinTxMode > 0) {
     digitalWrite(this->pinTxMode, LOW);
+    pinMode(this->pinTxMode, OUTPUT);
   }
 
   // init our rx valuesSNAPChannel
@@ -26,10 +31,10 @@ template <byte BUFFER_SIZE> SNAP<BUFFER_SIZE>::SNAP(SNAPChannel * channel, byte 
   this->rxSourceAddress = 0;
   this->rxCRC         = 0;
   this->rxBufferIndex = 0;
-
   // clear our rx buffer.
-  for (byte i = 0; i < BUFFER_SIZE; i++)
-    this->rxBuffer[i] = 0X00;
+  for (byte i = 0; i < BUFFER_SIZE; i++) {
+    this->rxBuffer[i] = 0x00;
+  }
 
   // init our tx values
   this->txDestAddress   = 0;
@@ -39,16 +44,24 @@ template <byte BUFFER_SIZE> SNAP<BUFFER_SIZE>::SNAP(SNAPChannel * channel, byte 
   this->txCRC         = 0;
   this->txAckWaitTime = 0;
   this->txRetryCount  = 0;
-
   // clear our tx buffer.
-  for (byte i = 0; i < BUFFER_SIZE; i++)
-    this->txBuffer[i] = 0;
+  for (byte i = 0; i < BUFFER_SIZE; i++) {
+    this->txBuffer[i] = 0x00;
+  }
+} // begin
+
+template <byte BUFFER_SIZE> void SNAP<BUFFER_SIZE>::setPinRxDebug(uint8_t pin) {
+  if (pin) {
+    digitalWrite(pin, LOW);
+    pinMode(pin, OUTPUT);
+  }
+  this->pinRxDebug = pin;
 }
 
 template <byte BUFFER_SIZE> bool SNAP<BUFFER_SIZE>::waitForAck() {
   bool hasWait = this->isWaitingForAck();
 
-  while (this->isWaitingForAck()) ;
+  while (this->isWaitingForAck()) { }
   return hasWait;
 }
 
@@ -62,12 +75,12 @@ template <byte BUFFER_SIZE> bool SNAP<BUFFER_SIZE>::isWaitingForAck() {
         DEBUG_PRINT("#" + String(this->address) + " ACK received in " + String(millis() - this->txMillis) + "ms");
         // YEAH !! it's an ACK response
         this->txAckWaitTime = 0;
-        this->releaseLock();
+        this->releaseReceive();
         return false;
       } else if (this->rxHDB2 & B00000011) {
         DEBUG_PRINT("#" + String(this->address) + " received NACK in " + String(
             millis() - this->txMillis) + "ms, resending");
-        this->releaseLock();
+        this->releaseReceive();
         // it's a NACK response, so re-transmit the message
         transmitMessage();
         return true;
@@ -109,9 +122,15 @@ template <byte BUFFER_SIZE> bool SNAP<BUFFER_SIZE>::receivePacket() {
   byte cmd;
 
   while (this->channel->available() > 0 && !this->packetReady()) {
+    if (this->pinRxDebug) {
+      digitalWrite(this->pinRxDebug, HIGH);
+    }
     cmd = this->channel->read();
     DEBUG_PRINT("#" + String(this->address) + " received something " + String(cmd, BIN));
     this->receiveByte(cmd);
+    if (this->pinRxDebug) {
+      digitalWrite(this->pinRxDebug, LOW);
+    }
   }
 
   return this->packetReady();
@@ -293,7 +312,7 @@ template <byte BUFFER_SIZE> void SNAP<BUFFER_SIZE>::receiveByte(byte c) {
 } // receiveByte
 
 template <byte BUFFER_SIZE> void SNAP<BUFFER_SIZE>::receiveError() {
-  this->releaseLock();
+  this->releaseReceive();
 }
 
 template <byte BUFFER_SIZE> void SNAP<BUFFER_SIZE>::sendStart(byte to, unsigned long ackWaitTime) {
@@ -416,7 +435,7 @@ template <byte BUFFER_SIZE> bool SNAP<BUFFER_SIZE>::packetReady() {
  * Must be manually called by the main loop when the message payload
  * has been consumed.
  */
-template <byte BUFFER_SIZE> void SNAP<BUFFER_SIZE>::releaseLock() {
+template <byte BUFFER_SIZE> void SNAP<BUFFER_SIZE>::releaseReceive() {
   // init our rx values
   this->rxState         = SNAP_idle;
   this->rxFlags         = 0;

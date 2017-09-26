@@ -11,19 +11,29 @@ This implemention of SNAP protocol is compatible for :
 
 ## HardwareSerial example
 ```cpp
-// create a channel based on HardwareSerial, use Serial3 at 115200 baud.
-SNAPChannelHardwareSerial snapChannelMaster = SNAPChannelHardwareSerial(&Serial3, 115200);
+// create a channel based on HardwareSerial, use Serial3
+SNAPChannelHardwareSerial snapChannelMaster = SNAPChannelHardwareSerial(&Serial3);
 // create a SNAP object with a buffer of 16 bytes, SNAP address of this node is 1, use pin 24 as txMode pin (this pin is set to HIGH when transmitting)
 SNAP<16> snapMaster = SNAP<16>(&snapChannelMaster, 1, 24);
+
+void setup() {
+  // init channel at 57600 bauds
+  snapChannelMaster.begin(57600);
+}
 ```
 
 ## SoftwareSerial example
 First of all, read SoftwareSerial limitations on https://www.arduino.cc/en/Reference/SoftwareSerial
 ```cpp
-// create a channel based on SoftwareSerial, use pin 10 as rxPin, pin 11 as txPin at 115200 baud.
-SNAPChannelSoftwareSerial snapChannelSlave = SNAPChannelSoftwareSerial(10, 11, 115200);
+// create a channel based on SoftwareSerial, use pin 10 as rxPin, pin 11 as txPin
+SNAPChannelSoftwareSerial snapChannelSlave = SNAPChannelSoftwareSerial(10, 11);
 // create a SNAP object with a buffer of 16 bytes, SNAP address of this node is 2, use pin 26 as txMode pin
 SNAP<16> snapSlave = SNAP<16>(&snapChannelSlave, 2, 26);
+
+void setup() {
+  // init channel at 57600 bauds
+  snapChannelSlave.begin(57600);
+}
 ```
 
 ## Send data
@@ -53,7 +63,7 @@ if (snapSlave.receivePacket()) {
         snapSlave.getByte(i);
     }
     // clear buffered message and signal to snapSlave that it can receive another message
-    snapSlave.releaseLock();
+    snapSlave.releaseReceive();
 }
 ```
 

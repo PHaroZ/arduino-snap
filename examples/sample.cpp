@@ -11,15 +11,18 @@
 const byte snapAddressMaster = 1;
 const byte snapAddressSlave  = 2;
 
-SNAPChannelHardwareSerial snapChannelMaster = SNAPChannelHardwareSerial(&Serial3, 115200);
+SNAPChannelHardwareSerial snapChannelMaster = SNAPChannelHardwareSerial(&Serial3);
 SNAP<16> snapMaster = SNAP<16>(&snapChannelMaster, snapAddressMaster, 24);
 
-// SNAPChannelSoftwareSerial snapChannelSlave = SNAPChannelSoftwareSerial(10, 11, 115200);
-SNAPChannelHardwareSerial snapChannelSlave = SNAPChannelHardwareSerial(&Serial2, 57600);
+SNAPChannelSoftwareSerial snapChannelSlave = SNAPChannelSoftwareSerial(10, 11);
+// SNAPChannelHardwareSerial snapChannelSlave = SNAPChannelHardwareSerial(&Serial2);
 SNAP<16> snapSlave = SNAP<16>(&snapChannelSlave, snapAddressSlave, 26);
 
 void setup() {
   Serial.begin(250000); // debug
+
+  snapChannelMaster.begin(57600);
+  snapChannelSlave.begin(57600);
 }
 
 void loop() {
@@ -46,7 +49,7 @@ void loop() {
         Serial.print(snapMaster.getByte(i), BIN);
       }
       Serial.println('.');
-      snapMaster.releaseLock();
+      snapMaster.releaseReceive();
     }
   }
 
@@ -58,6 +61,6 @@ void loop() {
       Serial.print(snapSlave.getByte(i), BIN);
     }
     Serial.println('.');
-    snapSlave.releaseLock();
+    snapSlave.releaseReceive();
   }
 } // loop

@@ -11,7 +11,8 @@
 
 class SNAPChannelSoftwareSerial : public SNAPChannel {
 public:
-  SNAPChannelSoftwareSerial(byte rxPin, byte txPin, long speed);
+  SNAPChannelSoftwareSerial(byte rxPin, byte txPin);
+  void begin(uint32_t speed);
   int available();
   int read();
   size_t printByte(byte c);

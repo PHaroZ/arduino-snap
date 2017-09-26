@@ -62,7 +62,9 @@ enum SNAP_states {
 template <byte BUFFER_SIZE = 16>
 class SNAP {
 public:
-  SNAP(SNAPChannel * channel, byte address, int pinTxMode);
+  SNAP(SNAPChannel * channel, byte address, uint8_t pinTxMode);
+  void begin(uint32_t speed);
+  void setPinRxDebug(uint8_t pin);
 
   bool receivePacket();
   bool waitForAck();
@@ -79,7 +81,7 @@ public:
   void sendDataLong(long data);
   void sendMessage();
 
-  void releaseLock();
+  void releaseReceive();
 
 private:
   void receiveByte(byte b);
@@ -97,7 +99,8 @@ private:
   // our communication Channel (typically a proxy to HardwareSerial or SoftwareSerial)
   SNAPChannel * channel;
   byte address;
-  int pinTxMode;
+  uint8_t pinTxMode;
+  uint8_t pinRxDebug;
 
   // these are variables for the packet we're currently receiving.
   byte rxState;               // Current SNAP packet state

@@ -1,8 +1,11 @@
 #include "SNAPChannelHardwareSerial.h"
 #include "DebugUtils.h"
 
-SNAPChannelHardwareSerial::SNAPChannelHardwareSerial(HardwareSerial * serial, long speed) {
+SNAPChannelHardwareSerial::SNAPChannelHardwareSerial(HardwareSerial * serial) {
   this->serial = serial;
+}
+
+void SNAPChannelHardwareSerial::begin(uint32_t speed) {
   this->serial->begin(speed);
 }
 

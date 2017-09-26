@@ -5,7 +5,8 @@
 
 class SNAPChannelHardwareSerial : public SNAPChannel {
 public:
-  SNAPChannelHardwareSerial(HardwareSerial * serial, long speed);
+  SNAPChannelHardwareSerial(HardwareSerial * serial);
+  void begin(uint32_t speed);
   int available();
   int read();
   size_t printByte(byte c);
