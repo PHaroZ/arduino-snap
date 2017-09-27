@@ -535,6 +535,22 @@ template <byte BUFFER_SIZE> byte SNAP<BUFFER_SIZE>::getSource() {
   return this->rxSourceAddress;
 }
 
+template <byte BUFFER_SIZE> byte SNAP<BUFFER_SIZE>::getLength() {
+  return this->rxLength;
+}
+
+template <byte BUFFER_SIZE> size_t SNAP<BUFFER_SIZE>::readBytes(byte * arr, size_t length) {
+  if (length > this->rxLength) {
+    length = this->rxLength;
+  }
+  size_t count = 0;
+  for (; count < length; count++) {
+    *arr++ = this->rxBuffer[count];
+    // arr[count]=this->rxBuffer[count];
+  }
+  return count;
+}
+
 template <byte BUFFER_SIZE> byte SNAP<BUFFER_SIZE>::getByte(byte index) {
   return this->rxBuffer[index];
 }

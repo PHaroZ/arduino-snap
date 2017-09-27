@@ -73,6 +73,8 @@ public:
 
   byte getDestination();
   byte getSource();
+  byte getLength();
+  size_t readBytes(byte * arr, size_t length);
   byte getByte(byte index);
   int getInt(byte index); // get 16 bits
 
