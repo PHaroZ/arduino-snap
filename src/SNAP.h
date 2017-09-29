@@ -66,8 +66,8 @@ public:
   void begin(uint32_t speed);
   void setPinRxDebug(uint8_t pin);
 
-  bool receivePacket();
   bool waitForAck();
+  bool checkForPacket();
   bool isWaitingForAck();
   bool packetReady();
 
@@ -87,6 +87,7 @@ public:
   void releaseReceive();
 
 private:
+  bool receivePacket();
   void receiveByte(byte b);
   void receiveError();
   void transmit(byte c);

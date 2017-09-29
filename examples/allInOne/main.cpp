@@ -39,21 +39,18 @@ void loop() {
     snapMaster.sendMessage();
   }
 
-  if (snapMaster.isWaitingForAck()) {
-    // do nothing ?
-  } else {
-    if (snapMaster.receivePacket()) {
-      Serial.print("master getBytes :");
-      for (byte i = 0; i < 16; i++) {
-        Serial.print(' ');
-        Serial.print(snapMaster.getByte(i), BIN);
-      }
-      Serial.println('.');
-      snapMaster.releaseReceive();
+
+  if (snapMaster.checkForPacket()) {
+    Serial.print("master getBytes :");
+    for (byte i = 0; i < 16; i++) {
+      Serial.print(' ');
+      Serial.print(snapMaster.getByte(i), BIN);
     }
+    Serial.println('.');
+    snapMaster.releaseReceive();
   }
 
-  if (snapSlave.receivePacket()) {
+  if (snapSlave.checkForPacket()) {
     Serial.print(millis());
     Serial.print(" slave getBytes :");
     for (byte i = 0; i < 16; i++) {

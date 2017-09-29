@@ -65,63 +65,63 @@ template <byte BUFFER_SIZE> bool SNAP<BUFFER_SIZE>::waitForAck() {
   return hasWait;
 }
 
-template <byte BUFFER_SIZE> bool SNAP<BUFFER_SIZE>::isWaitingForAck() {
-  if (this->txAckWaitTime > 0) {
-    // DEBUG_PRINT("wait for ack");
-    // we are waiting for an ACK
-    if (this->receivePacket()) {
-      // ACK just received ?
-      if (this->rxHDB2 & B00000010) {
-        DEBUG_PRINT("#" + String(this->address) + " ACK received in " + String(millis() - this->txMillis) + "ms");
-        // YEAH !! it's an ACK response
-        this->txAckWaitTime = 0;
-        this->releaseReceive();
-        return false;
-      } else if (this->rxHDB2 & B00000011) {
-        DEBUG_PRINT("#" + String(this->address) + " received NACK in " + String(
-            millis() - this->txMillis) + "ms, resending");
-        this->releaseReceive();
-        // it's a NACK response, so re-transmit the message
-        transmitMessage();
-        return true;
-      } else {
-        DEBUG_PRINT("#" + String(this->address) + " received something that is not an ACK nor a NACK");
-        // it's something else, this should not occurs, ignore it
-        this->rxFlags |= msgAbortedBit;
-        this->receiveError();
-        return true;
-      }
-    } else {
-      // no ACK available
-      if (millis() - this->txMillis > this->txAckWaitTime) {
-        // fail to get an ACK within the time limit, retry to send it if possible
-        if (this->txRetryCount < this->txMaxNoRetry) {
-          DEBUG_PRINT("#" + String(this->address) + " wait too much time (" + String(
-              millis() - this->txMillis) + "ms) for ACK/NACK, resending");
-          this->txRetryCount++;
-          transmitMessage();
-          return true;
-        } else {
-          DEBUG_PRINT("#" + String(this->address) + " give up the transmission");
-          // we have done all what can be done, give up the transmission and the ACK
+template <byte BUFFER_SIZE> bool SNAP<BUFFER_SIZE>::checkForPacket() {
+  // force reading incomming data from channel
+  if (this->receivePacket()) {
+    if (this->isWaitingForAck()) {
+      // it should be an ACK/NACK, otherwise package must be droppped
+      {
+        // ACK just received ?
+        if (this->rxHDB2 & B00000010) {
+          DEBUG_PRINT("#" + String(this->address) + " ACK received in " + String(millis() - this->txMillis) + "ms");
+          // YEAH !! it's an ACK response
           this->txAckWaitTime = 0;
-          return false;
+          this->releaseReceive();
+        } else if (this->rxHDB2 & B00000011) {
+          DEBUG_PRINT("#" + String(this->address) + " received NACK in " + String(
+              millis() - this->txMillis) + "ms, resending");
+          this->releaseReceive();
+          // it's a NACK response, so re-transmit the message
+          transmitMessage();
+        } else {
+          DEBUG_PRINT("#" + String(this->address) + " received something that is not an ACK nor a NACK");
+          // it's something else, this should not occurs, ignore it
+          this->rxFlags |= msgAbortedBit;
+          this->receiveError();
         }
-      } else {
-        // continue to wait for an ACK
-        return true;
       }
+      // in every case there is no new data to read for an external programm
+      return false;
+    } else {
+      return true;
     }
   } else {
-    // NO ACK waiting
+    // perhaps we are waiting for an ACK/NACK for too long, check that
+    if (this->isWaitingForAck() && (millis() - this->txMillis > this->txAckWaitTime)) {
+      // fail to get an ACK within the time limit, retry to send the message if possible
+      if (this->txRetryCount < this->txMaxNoRetry) {
+        DEBUG_PRINT("#" + String(this->address) + " wait too much time (" + String(
+            millis() - this->txMillis) + "ms) for ACK/NACK, resending");
+        this->txRetryCount++;
+        transmitMessage();
+      } else {
+        DEBUG_PRINT("#" + String(this->address) + " give up the transmission");
+        // we have done all what can be done, give up the transmission and the ACK
+        this->txAckWaitTime = 0;
+      }
+    }
     return false;
   }
-} // isWaitingForAck
+} // checkForPacket
+
+template <byte BUFFER_SIZE> bool SNAP<BUFFER_SIZE>::isWaitingForAck() {
+  return this->txAckWaitTime > 0;
+}
 
 template <byte BUFFER_SIZE> bool SNAP<BUFFER_SIZE>::receivePacket() {
   byte cmd;
 
-  while (this->channel->available() > 0 && !this->packetReady()) {
+  while (!this->packetReady() && this->channel->available() > 0) {
     if (this->pinRxDebug) {
       digitalWrite(this->pinRxDebug, HIGH);
     }

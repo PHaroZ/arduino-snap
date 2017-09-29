@@ -56,7 +56,7 @@ snapMaster.waitForAck()
 ## Receive message
 ```cpp
 // test if new message is available
-if (snapSlave.receivePacket()) {
+if (snapSlave.checkForPacket()) {
 	// loop other all buffer size
 	for (byte i = 0; i < 16; i++) {
     	// read a byte
@@ -68,4 +68,4 @@ if (snapSlave.receivePacket()) {
 ```
 
 ## Complete example
-For a complete example see sexamples/sample.cpp : a single arduino MEGA wich communicate with itself over its differents Serial.
+For a complete example see examples/allInOne/main.cpp : a single arduino MEGA wich communicate with itself over its differents Serial.
